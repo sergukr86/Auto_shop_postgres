@@ -119,7 +119,6 @@ if IS_HEROKU_APP:
     # https://github.com/jazzband/dj-database-url
     DATABASES = {
         "default": dj_database_url.config(
-            conn_health_checks=True,
             ssl_require=True,
         ),
     }
