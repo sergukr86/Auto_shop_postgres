@@ -1,0 +1,13 @@
+{% for dealer in dealers %}
+    <a href="{% url "dealer_edit" dealer.id %}">Edit info about dealer {{ dealer.id }}</a>|
+    Name: {{ dealer.name }} |
+    Clients:
+    {% for client in dealer.clients.all %}
+        {{ client.name }},
+    {% endfor %} |
+    Types:
+    {% for car_type in dealer.available_car_types.all %}
+        {{ car_type.brand }},
+    {% endfor %}
+    <br>
+{% endfor %}

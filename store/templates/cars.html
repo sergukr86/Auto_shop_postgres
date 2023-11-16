@@ -1,0 +1,7 @@
+{% for car in cars %}
+    Brand: {{ car.car_type.brand }} |
+    Model: {{ car.car_type.model_auto }} |
+    Color: {{ car.color }} |
+    Year: {{ car.year }} |
+    Price: {{ car.car_type.price }} | <br>
+{% endfor %}
