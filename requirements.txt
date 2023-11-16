@@ -1,5 +1,5 @@
 asgiref==3.7.2
-certifi==2023.7.22heroku ps:scale web=1
+certifi==2023.7.22
 charset-normalizer==3.3.2
 dj-config-url==0.1.1
 Django==4.2.7
