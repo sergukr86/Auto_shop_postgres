@@ -1,3 +1,6 @@
 {% for client in all_clients %}
     Name: {{ client.name }} | Phone: {{ client.phone }} | E-mail: {{ client.email }} | <br>
 {% endfor %}
+<div>
+    <a href="{% url "dealer_form" %}">Create new dealer</a>
+</div>

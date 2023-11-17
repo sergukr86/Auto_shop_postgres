@@ -6,7 +6,7 @@ from store.models import CarType
 
 
 def index(request):
-    return HttpResponse("Hello from Heroku!")
+    return render(request, "index.html")
 
 
 # form for creating new clients
