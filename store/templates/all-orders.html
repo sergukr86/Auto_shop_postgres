@@ -12,3 +12,19 @@
         Paid: {{ order.is_paid }} | <br>
 
 {% endfor %}
+<br>
+<div>
+    <a href="{% url "client_form" %}">Create new client</a>
+</div><br>
+<div>
+    <a href="{% url "car_type_form" %}">Create new car type</a>
+</div><br>
+<div>
+    <a href="{% url "car_form" %}">Create new car</a>
+</div><br>
+<div>
+    <a href="{% url "dealer_form" %}">Create new dealer</a>
+</div><br>
+<div>
+    <a href="{% url "order_form" %}">Create new order</a>
+</div><br>
