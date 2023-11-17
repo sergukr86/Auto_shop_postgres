@@ -118,7 +118,7 @@ if IS_HEROKU_APP:
     # https://devcenter.heroku.com/articles/provisioning-heroku-postgres
     # https://github.com/jazzband/dj-database-url
     DATABASES = {
-        "default": dj_database_url.config(default=os.environ.get('DATABASE_URL')),
+        "default": dj_database_url.config(),
     }
 else:
     # When running locally in development or in CI, a sqlite database file will be used instead
