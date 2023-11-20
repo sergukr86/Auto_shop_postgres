@@ -1,8 +1,14 @@
+from django.contrib.auth.views import LoginView
 from django.urls import path
 
 from store import views
 
 urlpatterns = [
+    path("register/", views.register, name="register"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("db/", views.db, name="db"),
+    path("users/", views.user_list, name="users"),
     path("", views.index),
     path("client/", views.client, name="client_form"),
     path("clients/", views.clients, name="clients"),
