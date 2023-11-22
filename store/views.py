@@ -1,12 +1,85 @@
-from django.http import HttpResponse
+from django.conf import settings
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.signing import Signer, BadSignature
 from django.shortcuts import render, redirect
+from django.contrib.auth import logout
+from django.core.mail import send_mail
+from django.urls import reverse_lazy
 
 from store.forms import *
 from store.models import CarType
 
 
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    success_message = (
+        "We've emailed you instructions for setting your password, "
+        "if an account exists with the email you entered. You should receive them shortly."
+        " If you don't receive an email, "
+        "please make sure you've entered the address you registered with, and check your spam folder."
+    )
+    success_url = reverse_lazy("login")
+
+
+def send_activation_email(request, user: User):
+    user_signed = Signer().sign(user.id)
+    url_signed = request.build_absolute_uri(f"/activate/{user_signed}")
+    send_mail(
+        "Registration complete",
+        "Click here to activate your account: " + url_signed,
+        "vlasenko.sv@ukr.net",
+        [user.email],
+        fail_silently=False,
+    )
+
+
+def activate(request, user_signed):
+    try:
+        user_id = Signer().unsign(user_signed)
+    except BadSignature:
+        return redirect("login")
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return redirect("login")
+    user.is_active = True
+    user.save()
+    return redirect("login")
+
+
 def index(request):
-    return render(request, "index.html")
+    return render(request, "index.html", {"user": request.user})
+
+
+def register(request):
+    if request.method == "GET":
+        form = UserCreationFormWithEmail()
+        return render(request, "registration/register.html", {"form": form})
+    form = UserCreationFormWithEmail(request.POST)
+    if form.is_valid():
+        form.instance.is_active = False
+        form.save()
+        send_activation_email(request, form.instance)
+        return render(request, "registration/confirm_register.html")
+    return render(request, "registration/register.html", {"form": form})
+
+
+def logout_view(request):
+    logout(request)
+    return redirect("login")
+
+
+def db(request):
+    user = request.user
+    return render(request, "db.html", {"user": user})
+
+
+# @login_required
+def user_list(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
+    users = User.objects.all()
+    return render(request, "users.html", {"users": users})
 
 
 # form for creating new clients

@@ -1,9 +1,16 @@
+from django.contrib.auth.views import LoginView
 from django.urls import path
 
 from store import views
 
 urlpatterns = [
-    path("", views.index),
+    path("register/", views.register, name="register"),
+    path("login/", LoginView.as_view(), name="login"),
+    path("logout/", views.logout_view, name="logout"),
+    path("activate/<user_signed>", views.activate, name="activate"),
+    path("db/", views.db, name="db"),
+    path("users/", views.user_list, name="users"),
+    path("", views.index, name="index"),
     path("client/", views.client, name="client_form"),
     path("clients/", views.clients, name="clients"),
     path("car-type/", views.car_type, name="car_type_form"),
