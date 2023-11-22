@@ -1,11 +1,50 @@
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
+from django.conf import settings
+from django.core.signing import Signer, BadSignature
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
-from django.contrib.auth.models import User
+from django.core.mail import send_mail
 
 from store.forms import *
 from store.models import CarType
+
+
+# class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+#     template_name = "registration/password_reset.html"
+#     email_template_name = "users/password_reset_email.html"
+#     subject_template_name = "users/password_reset_subject"
+#     success_message = (
+#         "We've emailed you instructions for setting your password, "
+#         "if an account exists with the email you entered. You should receive them shortly."
+#         " If you don't receive an email, "
+#         "please make sure you've entered the address you registered with, and check your spam folder."
+#     )
+#     success_url = reverse_lazy("login")
+
+
+def send_activation_email(request, user: User):
+    user_signed = Signer().sign(user.id)
+    url_signed = request.build_absolute_uri(f"/activate/{user_signed}")
+    send_mail(
+        "Registration complete",
+        "Click here to activate your account: " + url_signed,
+        "vlasenko.sv@ukr.net",
+        [user.email],
+        fail_silently=False,
+    )
+
+
+def activate(request, user_signed):
+    try:
+        user_id = Signer().unsign(user_signed)
+    except BadSignature:
+        return redirect("login")
+    try:
+        user = User.objects.get(id=user_id)
+    except User.DoesNotExist:
+        return redirect("login")
+    user.is_active = True
+    user.save()
+    return redirect("login")
 
 
 def index(request):
@@ -14,11 +53,13 @@ def index(request):
 
 def register(request):
     if request.method == "GET":
-        form = UserCreationForm()
+        form = UserCreationFormWithEmail()
         return render(request, "registration/register.html", {"form": form})
-    form = UserCreationForm(request.POST)
-    if form.is_valid:
+    form = UserCreationFormWithEmail(request.POST)
+    if form.is_valid():
+        form.instance.is_active = False
         form.save()
+        send_activation_email(request, form.instance)
         return redirect("login")
     return render(request, "registration/register.html", {"form": form})
 
@@ -33,8 +74,10 @@ def db(request):
     return render(request, "db.html", {"user": user})
 
 
-@login_required
+# @login_required
 def user_list(request):
+    if not request.user.is_authenticated:
+        return redirect(f"{settings.LOGIN_URL}?next={request.path}")
     users = User.objects.all()
     return render(request, "users.html", {"users": users})
 

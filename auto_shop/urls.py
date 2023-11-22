@@ -17,4 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-urlpatterns = [path("admin/", admin.site.urls), path("", include("store.urls"))]
+import store.views
+
+urlpatterns = [
+    path("admin/", admin.site.urls),
+    path("", include("store.urls")),
+    path("users/", include("django.contrib.auth.urls")),
+    # path("password-reset/", ResetPasswordView.as_view(), name="password_reset"),
+    path("activate/<user_signed>", store.views.activate, name="activate")
+]
