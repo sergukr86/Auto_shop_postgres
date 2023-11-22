@@ -1,24 +1,24 @@
 from django.conf import settings
+from django.contrib.auth.views import PasswordResetView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.signing import Signer, BadSignature
 from django.shortcuts import render, redirect
 from django.contrib.auth import logout
 from django.core.mail import send_mail
+from django.urls import reverse_lazy
 
 from store.forms import *
 from store.models import CarType
 
 
-# class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
-#     template_name = "registration/password_reset.html"
-#     email_template_name = "users/password_reset_email.html"
-#     subject_template_name = "users/password_reset_subject"
-#     success_message = (
-#         "We've emailed you instructions for setting your password, "
-#         "if an account exists with the email you entered. You should receive them shortly."
-#         " If you don't receive an email, "
-#         "please make sure you've entered the address you registered with, and check your spam folder."
-#     )
-#     success_url = reverse_lazy("login")
+class ResetPasswordView(SuccessMessageMixin, PasswordResetView):
+    success_message = (
+        "We've emailed you instructions for setting your password, "
+        "if an account exists with the email you entered. You should receive them shortly."
+        " If you don't receive an email, "
+        "please make sure you've entered the address you registered with, and check your spam folder."
+    )
+    success_url = reverse_lazy("login")
 
 
 def send_activation_email(request, user: User):
@@ -60,7 +60,7 @@ def register(request):
         form.instance.is_active = False
         form.save()
         send_activation_email(request, form.instance)
-        return redirect("login")
+        return render(request, "registration/confirm_register.html")
     return render(request, "registration/register.html", {"form": form})
 
 
